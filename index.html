@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Games About Money</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1B1F2A;
+    --bg-alt:#20263A;
+    --paper:#F3EAD8;
+    --paper-dim:#e7dcc4;
+    --ink:#2A2318;
+    --marigold:#E8A33D;
+    --teal:#4C9A78;
+    --red:#C1503F;
+    --muted:#9AA1B4;
+    --line: rgba(241,233,216,0.14);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+  }
+  h1,h2,h3{font-family:'Fraunces',serif; margin:0; letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .wrap{max-width:1040px; margin:0 auto; padding:0 24px;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:110px 24px 90px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    border-bottom:1px solid var(--line);
+  }
+  .hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(232,163,61,0.08), transparent 40%),
+      radial-gradient(circle at 80% 60%, rgba(76,154,120,0.10), transparent 45%);
+    animation: drift 14s ease-in-out infinite alternate;
+    pointer-events:none;
+  }
+  @keyframes drift{
+    from{ transform: translate(0,0) scale(1); }
+    to{ transform: translate(-12px, 10px) scale(1.04); }
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--marigold);
+    font-size:13px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    display:inline-block;
+    margin-bottom:18px;
+    opacity:0;
+    animation: rise 0.7s ease forwards 0.1s;
+  }
+  .hero h1{
+    font-size:clamp(2.2rem, 5vw, 3.6rem);
+    font-weight:600;
+    max-width:760px;
+    margin:0 auto 22px;
+    opacity:0;
+    animation: rise 0.8s ease forwards 0.25s;
+  }
+  .hero p{
+    max-width:560px;
+    margin:0 auto;
+    color:var(--muted);
+    font-size:1.05rem;
+    opacity:0;
+    animation: rise 0.8s ease forwards 0.4s;
+  }
+  @keyframes rise{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .ledger-rule{
+    width:64px; height:3px; background:var(--marigold);
+    margin:26px auto 0; border-radius:2px;
+    opacity:0;
+    animation: rise 0.8s ease forwards 0.55s;
+  }
+  .jump-row{margin-top:34px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;
+    opacity:0; animation: rise 0.8s ease forwards 0.7s;}
+  .jump-btn{
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--paper);
+    padding:11px 20px;
+    border-radius:999px;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    cursor:pointer;
+    transition:.2s border-color, .2s background, .2s transform;
+  }
+  .jump-btn:hover{ border-color:var(--marigold); transform:translateY(-2px);}
+
+  /* ---------- SECTION SHELL ---------- */
+  section.game{ padding:90px 24px 40px; }
+  .game-head{ max-width:640px; margin-bottom:44px; }
+  .game-tag{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--teal);
+  }
+  .game-head h2{ font-size:clamp(1.6rem,3.4vw,2.3rem); margin:10px 0 14px; font-weight:600;}
+  .game-head p{ color:var(--muted); font-size:1rem; max-width:560px;}
+
+  /* passbook card shared look */
+  .passbook{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:14px;
+    padding:34px;
+    box-shadow:0 30px 60px -25px rgba(0,0,0,0.55);
+    position:relative;
+    max-width:760px;
+  }
+  .passbook::before{
+    content:"";
+    position:absolute; left:0; top:18px; bottom:18px; width:3px;
+    background:repeating-linear-gradient(to bottom, var(--red) 0 8px, transparent 8px 16px);
+    border-radius:2px;
+    opacity:.55;
+  }
+  .stat-row{ display:flex; gap:26px; flex-wrap:wrap; margin-bottom:26px; }
+  .stat{ min-width:120px; }
+  .stat label{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#8b7d5e; margin-bottom:4px;}
+  .stat .val{ font-family:'IBM Plex Mono',monospace; font-size:1.3rem; font-weight:600; }
+  .meter{ height:6px; border-radius:4px; background:rgba(42,35,24,0.12); margin-top:6px; overflow:hidden;}
+  .meter > div{ height:100%; border-radius:4px; transition:width .5s ease; }
+
+  .scenario-box{
+    background:rgba(42,35,24,0.05);
+    border:1px solid rgba(42,35,24,0.12);
+    border-radius:10px;
+    padding:22px 24px;
+    margin-bottom:20px;
+    min-height:88px;
+  }
+  .day-label{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--red); text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px; display:block;}
+  .scenario-text{ font-size:1.02rem; }
+
+  .choice-list{ display:flex; flex-direction:column; gap:10px; }
+  .choice-btn{
+    text-align:left;
+    border:1px solid rgba(42,35,24,0.2);
+    background:#fff;
+    color:var(--ink);
+    padding:14px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+    font-size:0.95rem;
+    transition:.18s transform, .18s border-color, .18s background;
+  }
+  .choice-btn:hover{ border-color:var(--teal); transform:translateX(4px); background:#fbf8f1;}
+  .choice-btn .tag{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--teal); display:block; margin-bottom:3px;}
+
+  .outcome-box{
+    animation: fadeSlide .5s ease;
+    background:rgba(76,154,120,0.08);
+    border:1px solid rgba(76,154,120,0.3);
+    border-radius:10px;
+    padding:18px 20px;
+    margin-top:14px;
+    font-size:.95rem;
+  }
+  @keyframes fadeSlide{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+  .continue-btn, .reset-btn{
+    margin-top:18px;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:11px 20px;
+    border-radius:8px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    font-size:.9rem;
+  }
+  .continue-btn:hover, .reset-btn:hover{ background:#463c28; }
+
+  .epilogue h3{ font-size:1.3rem; margin-bottom:10px;}
+  .epilogue ul{ padding-left:18px; margin:10px 0 0;}
+  .epilogue li{ margin-bottom:6px; }
+
+  /* ---------- GAME 2 specific ---------- */
+  .stall-controls{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+  .unit-btn{
+    border:1px solid rgba(42,35,24,0.2);
+    background:#fff;
+    padding:12px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.9rem;
+    transition:.15s;
+  }
+  .unit-btn:hover{ border-color:var(--marigold); }
+  .unit-btn.selected{ background:var(--marigold); border-color:var(--marigold); color:#2A2318; font-weight:600;}
+  .event-banner{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.85rem;
+    padding:9px 14px;
+    border-radius:6px;
+    margin-bottom:14px;
+    display:none;
+  }
+  .event-banner.show{ display:block; animation: fadeSlide .4s ease; }
+  .event-good{ background:rgba(76,154,120,0.15); color:#2c6b4e; }
+  .event-bad{ background:rgba(193,80,63,0.13); color:#8f3a2c; }
+
+  .chart-wrap{ margin-top:24px; }
+  .chart-wrap label{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#8b7d5e; }
+  svg#cashChart{ width:100%; height:130px; display:block; margin-top:8px; }
+
+  .gameover-box{
+    background:rgba(193,80,63,0.1);
+    border:1px solid rgba(193,80,63,0.35);
+    border-radius:10px;
+    padding:20px;
+    margin-top:14px;
+  }
+
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:.85rem;
+    padding:60px 24px 50px;
+  }
+
+  @media (max-width:600px){
+    .passbook{padding:24px;}
+    .stat-row{gap:16px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">Two Games</div>
+  <h1>Two Games About Money</h1>
+  <p>Play these games to see what happens with different money choices. Each choice has a result.</p>
+  <div class="ledger-rule"></div>
+  <div class="jump-row">
+    <button class="jump-btn" onclick="document.getElementById('game1').scrollIntoView({behavior:'smooth'})">Play Game 1</button>
+    <button class="jump-btn" onclick="document.getElementById('game2').scrollIntoView({behavior:'smooth'})">Play Game 2</button>
+  </div>
+</header>
+
+<!-- ============ GAME 1 ============ -->
+<section class="game" id="game1">
+  <div class="wrap">
+    <div class="game-head">
+      <span class="game-tag">Game 1</span>
+      <h2>Daily Choices</h2>
+      <p>Meena is a worker with a small amount of money for the week. Each day, you choose what Meena should do. See what happens after 5 days.</p>
+    </div>
+
+    <div class="passbook">
+      <div class="stat-row">
+        <div class="stat">
+          <label>Cash</label>
+          <div class="val mono" id="g1-cash">₹150</div>
+        </div>
+        <div class="stat" style="flex:1; min-width:140px;">
+          <label>Health</label>
+          <div class="val mono" id="g1-health-val">70%</div>
+          <div class="meter"><div id="g1-health-bar" style="width:70%; background:var(--teal);"></div></div>
+        </div>
+        <div class="stat" style="flex:1; min-width:140px;">
+          <label>Support</label>
+          <div class="val mono" id="g1-stability-val">60%</div>
+          <div class="meter"><div id="g1-stability-bar" style="width:60%; background:var(--marigold);"></div></div>
+        </div>
+      </div>
+
+      <div class="scenario-box">
+        <span class="day-label" id="g1-daylabel">Day 1 of 5</span>
+        <div class="scenario-text" id="g1-scenario"></div>
+      </div>
+
+      <div class="choice-list" id="g1-choices"></div>
+      <div id="g1-outcome"></div>
+      <div id="g1-epilogue" class="epilogue"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GAME 2 ============ -->
+<section class="game" id="game2">
+  <div class="wrap">
+    <div class="game-head">
+      <span class="game-tag">Game 2</span>
+      <h2>Corner Stall</h2>
+      <p>Raju runs a small food stall. Each morning, choose how much food he should make. Food costs ₹5 to make. It sells for ₹12. Food that is not sold is wasted. The stall costs ₹30 each day to run. Play for 5 days and see how much money is left at the end.</p>
+    </div>
+
+    <div class="passbook">
+      <div class="stat-row">
+        <div class="stat">
+          <label>Day</label>
+          <div class="val mono" id="g2-day">1 / 5</div>
+        </div>
+        <div class="stat">
+          <label>Cash</label>
+          <div class="val mono" id="g2-cash">₹500</div>
+        </div>
+        <div class="stat">
+          <label>Money made yesterday</label>
+          <div class="val mono" id="g2-profit">—</div>
+        </div>
+      </div>
+
+      <div id="g2-event" class="event-banner"></div>
+
+      <div class="scenario-box" id="g2-scenario-box">
+        <span class="day-label">How much food should Raju make today?</span>
+        <div class="scenario-text">Food costs ₹5 to make. It sells for ₹12. Food you do not sell is wasted. The stall costs ₹30 a day to run.</div>
+      </div>
+
+      <div class="stall-controls" id="g2-units"></div>
+      <button class="continue-btn" id="g2-run-btn" onclick="g2_runDay()">Start the Day</button>
+      <div id="g2-result"></div>
+
+      <div class="chart-wrap">
+        <label>Your Money Each Day</label>
+        <svg id="cashChart" viewBox="0 0 500 130" preserveAspectRatio="none"></svg>
+      </div>
+
+      <div id="g2-gameover"></div>
+    </div>
+  </div>
+</section>
+
+<footer>These are simple games to help you think about money choices. They are not real financial advice.</footer>
+
+<script>
+/* ================= GAME 1: THE WEEK ================= */
+const g1_days = [
+  {
+    text: "Meena feels unwell this morning. She has ₹150 for this week.",
+    choices: [
+      { tag:"Buy medicine", label:"Meena buys medicine. It costs ₹40.", cash:-40, health:15, stability:5,
+        outcome:"The medicine helps. Meena feels better by evening." },
+      { tag:"Rest today", label:"Meena stays home and rests today.", cash:-80, health:10, stability:10,
+        outcome:"Meena loses one day of pay. But she gets good rest." },
+      { tag:"Work anyway", label:"Meena goes to work anyway.", cash:80, health:-15, stability:-10,
+        outcome:"Meena earns money today. But she feels worse, and it takes longer to get well." }
+    ]
+  },
+  {
+    text: "Meena's landlord wants this month's rent early. It is ₹300.",
+    choices: [
+      { tag:"Pay now", label:"Meena pays the full rent now.", cash:-300, health:0, stability:15,
+        outcome:"The rent is paid. Now Meena has no extra money if something goes wrong this week." },
+      { tag:"Borrow money", label:"Meena borrows ₹300 from a moneylender.", cash:300, health:0, stability:-5, debt:60,
+        outcome:"Meena gets the money today. But she must pay back ₹360 later — that is ₹60 more than she borrowed." },
+      { tag:"Ask for time", label:"Meena asks her landlord for more time.", cash:0, health:0, stability:-10,
+        outcome:"He says yes, but he is not happy. Meena will owe more next month." }
+    ]
+  },
+  {
+    text: "Meena can join a 3-day training. It does not pay, but she would learn a new skill.",
+    choices: [
+      { tag:"Join training", label:"Meena joins the training.", cash:-180, health:-5, stability:5, wageBoost:true,
+        outcome:"The training is tiring. But now Meena knows how to fix phones, and this work pays more." },
+      { tag:"Keep working", label:"Meena skips the training and keeps her normal job.", cash:180, health:0, stability:0,
+        outcome:"Meena earns her normal pay. Nothing changes this week." }
+    ]
+  },
+  {
+    text: "Meena's bicycle has a flat tyre. She needs it to get to work.",
+    choices: [
+      { tag:"Fix it well", label:"Meena pays for a good repair. It costs ₹60.", cash:-60, health:0, stability:10,
+        outcome:"The bicycle is fixed well. It should not break again soon." },
+      { tag:"Cheap fix", label:"Meena does a cheap, quick fix. It costs ₹15.", cash:-15, health:-5, stability:-5,
+        outcome:"Meena saves money. But the bicycle is not safe, and it may break again." },
+      { tag:"Walk instead", label:"Meena walks to work instead, to save money.", cash:0, health:-10, stability:-5,
+        outcome:"Meena saves money. But she is tired every day, and she arrives late." }
+    ]
+  },
+  {
+    text: "A local skills class costs ₹120 this month. It is due tomorrow.",
+    choices: [
+      { tag:"Pay in full", label:"Meena pays the full amount and joins the class.", cash:-120, health:0, stability:15,
+        outcome:"Meena joins the class with no problem. She learns skills that help her later." },
+      { tag:"Pay half", label:"Meena pays half now and asks for more time on the rest.", cash:-60, health:0, stability:5,
+        outcome:"Meena joins the class for now. She will still owe the rest later." },
+      { tag:"Skip it", label:"Meena does not pay this time.", cash:0, health:0, stability:-20,
+        outcome:"Meena misses the class. It will be hard to catch up later." }
+    ]
+  }
+];
+
+let g1_state = { day:0, cash:150, health:70, stability:60, debt:0, wageBoost:false };
+
+function g1_render(){
+  document.getElementById('g1-cash').textContent = "₹" + g1_state.cash;
+  document.getElementById('g1-health-val').textContent = Math.max(0,g1_state.health) + "%";
+  document.getElementById('g1-stability-val').textContent = Math.max(0,g1_state.stability) + "%";
+  document.getElementById('g1-health-bar').style.width = Math.max(0,Math.min(100,g1_state.health)) + "%";
+  document.getElementById('g1-stability-bar').style.width = Math.max(0,Math.min(100,g1_state.stability)) + "%";
+
+  document.getElementById('g1-outcome').innerHTML = "";
+  document.getElementById('g1-epilogue').innerHTML = "";
+
+  if(g1_state.day >= g1_days.length){
+    g1_epilogue();
+    document.getElementById('g1-daylabel').textContent = "End of the week";
+    document.getElementById('g1-scenario').textContent = "Meena's week is over. Here is what happened.";
+    document.getElementById('g1-choices').innerHTML = "";
+    return;
+  }
+
+  const d = g1_days[g1_state.day];
+  document.getElementById('g1-daylabel').textContent = `Day ${g1_state.day+1} of ${g1_days.length}`;
+  document.getElementById('g1-scenario').textContent = d.text;
+
+  const list = document.getElementById('g1-choices');
+  list.innerHTML = "";
+  d.choices.forEach((c, idx) => {
+    const btn = document.createElement('button');
+    btn.className = "choice-btn";
+    btn.innerHTML = `<span class="tag">${c.tag}</span>${c.label}`;
+    btn.onclick = () => g1_choose(idx);
+    list.appendChild(btn);
+  });
+}
+
+function g1_choose(idx){
+  const d = g1_days[g1_state.day];
+  const c = d.choices[idx];
+  g1_state.cash += c.cash;
+  g1_state.health += c.health;
+  g1_state.stability += c.stability;
+  if(c.debt) g1_state.debt += c.debt;
+  if(c.wageBoost) g1_state.wageBoost = true;
+
+  document.getElementById('g1-cash').textContent = "₹" + g1_state.cash;
+  document.getElementById('g1-health-val').textContent = Math.max(0,g1_state.health) + "%";
+  document.getElementById('g1-stability-val').textContent = Math.max(0,g1_state.stability) + "%";
+  document.getElementById('g1-health-bar').style.width = Math.max(0,Math.min(100,g1_state.health)) + "%";
+  document.getElementById('g1-stability-bar').style.width = Math.max(0,Math.min(100,g1_state.stability)) + "%";
+
+  document.getElementById('g1-choices').innerHTML = "";
+  document.getElementById('g1-outcome').innerHTML = `
+    <div class="outcome-box">
+      ${c.outcome}
+      <div><button class="continue-btn" onclick="g1_next()">Next</button></div>
+    </div>`;
+}
+
+function g1_next(){
+  g1_state.day++;
+  if(g1_state.day === g1_days.length && g1_state.debt > 0){
+    g1_state.cash -= g1_state.debt;
+    g1_state.debt = 0;
+  }
+  g1_render();
+}
+
+function g1_epilogue(){
+  const s = g1_state;
+  let lines = [];
+  if(s.cash < 0) lines.push("Meena has less money than she started with. This is called debt.");
+  else if(s.cash < 60) lines.push("Meena has very little money left. One more problem could be hard to handle.");
+  else lines.push("Meena has some money saved. This can help if something goes wrong later.");
+
+  if(s.health < 45) lines.push("Meena's health is low this week. This can make it harder to work next week.");
+  else if(s.health >= 70) lines.push("Meena's health stayed good this week.");
+
+  if(s.stability < 40) lines.push("Things are difficult for Meena right now. Rent or classes may be a problem soon.");
+  else if(s.stability >= 75) lines.push("Things are steady for Meena. This helps her plan for the future.");
+
+  if(s.wageBoost) lines.push("The training Meena chose is helping. She can now earn more money at work.");
+
+  document.getElementById('g1-epilogue').innerHTML = `
+    <h3>End of the week</h3>
+    <div class="stat-row" style="margin-bottom:14px;">
+      <div class="stat"><label>Cash</label><div class="val mono">₹${s.cash}</div></div>
+      <div class="stat"><label>Health</label><div class="val mono">${Math.max(0,s.health)}%</div></div>
+      <div class="stat"><label>Support</label><div class="val mono">${Math.max(0,s.stability)}%</div></div>
+    </div>
+    <ul>${lines.map(l=>`<li>${l}</li>`).join("")}</ul>
+    <button class="reset-btn" onclick="g1_reset()">Play Again</button>
+  `;
+}
+
+function g1_reset(){
+  g1_state = { day:0, cash:150, health:70, stability:60, debt:0, wageBoost:false };
+  g1_render();
+}
+
+g1_render();
+
+/* ================= GAME 2: CORNER STALL ================= */
+const UNIT_OPTIONS = [20, 40, 60, 80, 100];
+let g2 = { day:1, cash:500, history:[500], selectedUnits:60, gameOver:false };
+
+const EVENTS = [
+  { key:"rain", label:"☔ It is raining. Fewer people come to buy food.", type:"bad", demandMult:0.5, cost:0 },
+  { key:"festival", label:"🎉 There is a festival nearby. Many people come to buy food.", type:"good", demandMult:1.7, cost:0 },
+  { key:"inspector", label:"🧾 An inspector gives you a fine of ₹50.", type:"bad", demandMult:1, cost:50 },
+  { key:"pricespike", label:"📈 Food costs more to make today.", type:"bad", demandMult:1, cost:0, priceSpike:2 },
+  { key:"none", label:"", type:"none", demandMult:1, cost:0 }
+];
+
+function g2_renderUnits(){
+  const wrap = document.getElementById('g2-units');
+  wrap.innerHTML = "";
+  UNIT_OPTIONS.forEach(u => {
+    const btn = document.createElement('button');
+    btn.className = "unit-btn" + (u === g2.selectedUnits ? " selected" : "");
+    btn.textContent = u + " plates";
+    btn.onclick = () => { g2.selectedUnits = u; g2_renderUnits(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function g2_runDay(){
+  if(g2.gameOver) return;
+
+  const ev = EVENTS[Math.floor(Math.random()*EVENTS.length)];
+  const banner = document.getElementById('g2-event');
+  if(ev.type !== "none"){
+    banner.textContent = ev.label;
+    banner.className = "event-banner show " + (ev.type === "good" ? "event-good" : "event-bad");
+  } else {
+    banner.className = "event-banner";
+  }
+
+  const units = g2.selectedUnits;
+  const unitCost = 5 + (ev.priceSpike || 0);
+  const baseDemand = 45 + Math.floor(Math.random()*30) - 15; // ~30-60
+  const demand = Math.max(0, Math.round(baseDemand * ev.demandMult));
+  const sold = Math.min(units, demand);
+  const revenue = sold * 12;
+  const ingredientCost = units * unitCost;
+  const fixedCost = 30;
+  const eventCost = ev.cost || 0;
+  const profit = revenue - ingredientCost - fixedCost - eventCost;
+
+  g2.cash += profit;
+  g2.history.push(g2.cash);
+
+  document.getElementById('g2-cash').textContent = "₹" + g2.cash;
+  document.getElementById('g2-profit').textContent = (profit >= 0 ? "+₹" : "-₹") + Math.abs(profit);
+  document.getElementById('g2-profit').style.color = profit >= 0 ? "#2c6b4e" : "#8f3a2c";
+
+  document.getElementById('g2-result').innerHTML = `
+    <div class="outcome-box">
+      Raju made ${units} plates. Each one cost ₹${unitCost} to make. He sold ${sold} plates at ₹12 each.<br>
+      He earned ₹${revenue}. He spent ₹${ingredientCost} on food and ₹${fixedCost} on the stall${eventCost ? ` and ₹${eventCost} on a fine` : ""}.<br>
+      ${sold < units ? `${units - sold} plates were not sold. They were wasted.` : `He sold all his food today. He could have made more.`}
+    </div>
+  `;
+
+  g2_drawChart();
+
+  if(g2.cash < 0){
+    g2.gameOver = true;
+    document.getElementById('g2-gameover').innerHTML = `
+      <div class="gameover-box">
+        <strong>Raju has no money left.</strong> This happened on Day ${g2.day}.
+        He did not have enough saved to cover a bad day. <button class="reset-btn" onclick="g2_reset()">Try Again</button>
+      </div>`;
+    document.getElementById('g2-run-btn').disabled = true;
+    return;
+  }
+
+  g2.day++;
+  document.getElementById('g2-day').textContent = `${Math.min(g2.day,5)} / 5`;
+
+  if(g2.day > 5){
+    g2.gameOver = true;
+    const startCash = 500;
+    const totalProfit = g2.cash - startCash;
+    let note;
+    if(totalProfit > 300) note = "Raju made good money. He planned well.";
+    else if(totalProfit > 0) note = "Raju made a little more money than he started with.";
+    else note = "Raju has less money than he started with. This can happen when costs are higher than what you earn.";
+
+    document.getElementById('g2-gameover').innerHTML = `
+      <div class="gameover-box" style="background:rgba(76,154,120,0.1); border-color:rgba(76,154,120,0.35);">
+        <strong>Raju finished 5 days.</strong> He started with ₹${startCash}. He now has ₹${g2.cash}.
+        ${note}
+        <div><button class="reset-btn" onclick="g2_reset()">Play Again</button></div>
+      </div>`;
+    document.getElementById('g2-run-btn').disabled = true;
+  }
+}
+
+function g2_drawChart(){
+  const svg = document.getElementById('cashChart');
+  const w = 500, h = 130, pad = 10;
+  const data = g2.history;
+  const max = Math.max(...data, 500) * 1.1;
+  const min = Math.min(...data, 0);
+  const range = (max - min) || 1;
+  const stepX = (w - pad*2) / Math.max(data.length - 1, 1);
+
+  const points = data.map((v,i) => {
+    const x = pad + i*stepX;
+    const y = h - pad - ((v - min) / range) * (h - pad*2);
+    return `${x},${y}`;
+  }).join(" ");
+
+  const zeroY = h - pad - ((0 - min) / range) * (h - pad*2);
+
+  svg.innerHTML = `
+    <line x1="${pad}" y1="${zeroY}" x2="${w-pad}" y2="${zeroY}" stroke="rgba(42,35,24,0.25)" stroke-dasharray="4 4" />
+    <polyline points="${points}" fill="none" stroke="#4C9A78" stroke-width="2.5" />
+    ${data.map((v,i)=>{
+      const x = pad + i*stepX;
+      const y = h - pad - ((v - min) / range) * (h - pad*2);
+      return `<circle cx="${x}" cy="${y}" r="3.5" fill="#E8A33D" />`;
+    }).join("")}
+  `;
+}
+
+function g2_reset(){
+  g2 = { day:1, cash:500, history:[500], selectedUnits:60, gameOver:false };
+  document.getElementById('g2-day').textContent = "1 / 5";
+  document.getElementById('g2-cash').textContent = "₹500";
+  document.getElementById('g2-profit').textContent = "—";
+  document.getElementById('g2-profit').style.color = "";
+  document.getElementById('g2-result').innerHTML = "";
+  document.getElementById('g2-gameover').innerHTML = "";
+  document.getElementById('g2-event').className = "event-banner";
+  document.getElementById('g2-run-btn').disabled = false;
+  g2_renderUnits();
+  g2_drawChart();
+}
+
+g2_renderUnits();
+g2_drawChart();
+</script>
+</body>
+</html>
